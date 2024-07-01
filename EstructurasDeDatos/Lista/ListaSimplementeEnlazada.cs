@@ -121,9 +121,98 @@ namespace EstructurasDeDatos.Lista
                 this.Agregar(elemento);
             }
         }
+
+        private Nodo<T> GetTail(Nodo<T> node)
+        {
+            while (node != null && node.Siguiente != null)
+            {
+                node = node.Siguiente;
+            }
+            return node;
+        }
+
+        private Nodo<T> Partition(Nodo<T> head, Nodo<T> end, out Nodo<T> newHead, out Nodo<T> newEnd, bool desc)
+        {
+            Nodo<T> pivot = end;
+            Nodo<T> prev = null, cur = head, tail = pivot;
+
+            newHead = null;
+            newEnd = null;
+
+            while (cur != pivot)
+            {
+                if (!desc &&(cur.Valor.CompareTo(pivot.Valor) < 0) || desc && (cur.Valor.CompareTo(pivot.Valor) > 0))
+                {
+                    if (newHead == null)
+                    {
+                        newHead = cur;
+                    }
+                    prev = cur;
+                    cur = cur.Siguiente;
+                }
+                else
+                {
+                    if (prev != null)
+                    {
+                        prev.Siguiente = cur.Siguiente;
+                    }
+                    Nodo<T> tmp = cur.Siguiente;
+                    cur.Siguiente = null;
+                    tail.Siguiente = cur;
+                    tail = cur;
+                    cur = tmp;
+                }
+            }
+
+            if (newHead == null)
+            {
+                newHead = pivot;
+            }
+
+            newEnd = tail;
+
+            return pivot;
+        }
+
+        private Nodo<T> QuickSortRecur(Nodo<T> head, Nodo<T> end, bool desc)
+        {
+            if (head == null || head == end)
+            {
+                return head;
+            }
+
+            Nodo<T> newHead = null, newEnd = null;
+            Nodo<T> pivot = Partition(head, end, out newHead, out newEnd, desc);
+
+            if (newHead != pivot)
+            {
+                Nodo<T> tmp = newHead;
+                while (tmp.Siguiente != pivot)
+                {
+                    tmp = tmp.Siguiente;
+                }
+                tmp.Siguiente = null;
+
+                newHead = QuickSortRecur(newHead, tmp, desc);
+
+                tmp = GetTail(newHead);
+                tmp.Siguiente = pivot;
+            }
+
+            pivot.Siguiente = QuickSortRecur(pivot.Siguiente, newEnd, desc);
+
+            return newHead;
+        }
+
+        private void QuickSort(bool desc)
+        {
+            cabeza = QuickSortRecur(cabeza, GetTail(cabeza), desc);
+        }
+
         public void Ordenar(bool desc = true)
         {
-            List<T> lista = ToList();
+            /*
+             * List<T> lista = ToList();
             
             lista.Sort(); // TODO Eventualmente cambiar esta cochinada por un QuickSort caserito.
 
@@ -133,6 +222,9 @@ namespace EstructurasDeDatos.Lista
             }
 
             ToLSE(lista);
+            */
+
+            QuickSort(desc);
         }
 
         public void Remover()
